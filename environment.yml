@@ -1,0 +1,33 @@
+channels:
+  - pytorch
+  - fastai
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - pip
+
+  - pytorch
+  - pytorch-lightning
+  - timm
+  - torchtext
+  - torchvision
+
+  - einops
+  - imgaug
+  - kornia
+  - matplotlib
+  - albumentations
+  - omegaconf
+  - py-opencv
+  - pandas
+  - wandb
+  - scikit-learn
+
+  - black
+  - isort
+  - flake8
+  - flake8-bugbear
+  - mypy
+  - ipywidgets
+  - pre-commit
