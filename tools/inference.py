@@ -28,6 +28,9 @@ import cv2
 import numpy as np
 from anomalib.config import get_configurable_parameters
 from anomalib.deploy.inferencers.base import Inferencer
+from tqdm import tqdm
+
+warnings.filterwarnings("ignore")
 
 
 def get_args() -> Namespace:
@@ -38,12 +41,30 @@ def get_args() -> Namespace:
     """
     parser = ArgumentParser()
     # --model_config_path will be deprecated in 0.2.8 and removed in 0.2.9
-    parser.add_argument("--model_config_path", type=str, required=False, help="Path to a model config file")
-    parser.add_argument("--config", type=Path, required=True, help="Path to a model config file")
-    parser.add_argument("--weight_path", type=Path, required=True, help="Path to a model weights")
-    parser.add_argument("--image_path", type=Path, required=True, help="Path to an image to infer.")
-    parser.add_argument("--save_path", type=Path, required=False, help="Path to save the output image.")
-    parser.add_argument("--meta_data", type=Path, required=False, help="Path to JSON file containing the metadata.")
+    parser.add_argument(
+        "--model_config_path",
+        type=str,
+        required=False,
+        help="Path to a model config file",
+    )
+    parser.add_argument(
+        "--config", type=Path, required=True, help="Path to a model config file"
+    )
+    parser.add_argument(
+        "--weight_path", type=Path, required=True, help="Path to a model weights"
+    )
+    parser.add_argument(
+        "--image_path", type=Path, required=True, help="Path to an image to infer."
+    )
+    parser.add_argument(
+        "--save_path", type=Path, required=False, help="Path to save the output image."
+    )
+    parser.add_argument(
+        "--meta_data",
+        type=Path,
+        required=False,
+        help="Path to JSON file containing the metadata.",
+    )
     parser.add_argument(
         "--overlay_mask",
         type=bool,
@@ -64,7 +85,9 @@ def get_args() -> Namespace:
     return args
 
 
-def add_label(prediction: np.ndarray, scores: float, font: int = cv2.FONT_HERSHEY_PLAIN) -> np.ndarray:
+def add_label(
+    prediction: np.ndarray, scores: float, font: int = cv2.FONT_HERSHEY_PLAIN
+) -> np.ndarray:
     """If the model outputs score, it adds the score to the output image.
 
     Args:
@@ -75,11 +98,23 @@ def add_label(prediction: np.ndarray, scores: float, font: int = cv2.FONT_HERSHE
         np.ndarray: Image with score text.
     """
     text = f"Confidence Score {scores:.0%}"
-    font_size = prediction.shape[1] // 1024 + 1  # Text scale is calculated based on the reference size of 1024
-    (width, height), baseline = cv2.getTextSize(text, font, font_size, thickness=font_size // 2)
+    font_size = (
+        prediction.shape[1] // 1024 + 1
+    )  # Text scale is calculated based on the reference size of 1024
+    (width, height), baseline = cv2.getTextSize(
+        text, font, font_size, thickness=font_size // 2
+    )
     label_patch = np.zeros((height + baseline, width + baseline, 3), dtype=np.uint8)
     label_patch[:, :] = (225, 252, 134)
-    cv2.putText(label_patch, text, (0, baseline // 2 + height), font, font_size, 0, lineType=cv2.LINE_AA)
+    cv2.putText(
+        label_patch,
+        text,
+        (0, baseline // 2 + height),
+        font,
+        font_size,
+        0,
+        lineType=cv2.LINE_AA,
+    )
     prediction[: baseline + height, : baseline + width] = label_patch
     return prediction
 
@@ -101,13 +136,21 @@ def stream() -> None:
     inferencer: Inferencer
     if extension in (".ckpt"):
         module = import_module("anomalib.deploy.inferencers.torch")
-        TorchInferencer = getattr(module, "TorchInferencer")  # pylint: disable=invalid-name
-        inferencer = TorchInferencer(config=config, model_source=args.weight_path, meta_data_path=args.meta_data)
+        TorchInferencer = getattr(
+            module, "TorchInferencer"
+        )  # pylint: disable=invalid-name
+        inferencer = TorchInferencer(
+            config=config, model_source=args.weight_path, meta_data_path=args.meta_data
+        )
 
     elif extension in (".onnx", ".bin", ".xml"):
         module = import_module("anomalib.deploy.inferencers.openvino")
-        OpenVINOInferencer = getattr(module, "OpenVINOInferencer")  # pylint: disable=invalid-name
-        inferencer = OpenVINOInferencer(config=config, path=args.weight_path, meta_data_path=args.meta_data)
+        OpenVINOInferencer = getattr(
+            module, "OpenVINOInferencer"
+        )  # pylint: disable=invalid-name
+        inferencer = OpenVINOInferencer(
+            config=config, path=args.weight_path, meta_data_path=args.meta_data
+        )
 
     else:
         raise ValueError(
@@ -116,10 +159,15 @@ def stream() -> None:
         )
     if args.image_path.is_dir():
         # Write the output to save_path in the same structure as the input directory.
-        for image in args.image_path.glob("**/*"):
+        img_list = list(args.image_path.glob("**/*"))
+        for image in tqdm(img_list):
             if image.is_file() and image.suffix in (".jpg", ".png", ".jpeg"):
                 # Here save_path is assumed to be a directory. Image subdirectories are appended to the save_path.
-                save_path = Path(args.save_path / image.relative_to(args.image_path).parent) if args.save_path else None
+                save_path = (
+                    Path(args.save_path / image.relative_to(args.image_path).parent)
+                    if args.save_path
+                    else None
+                )
                 infer(image, inferencer, save_path, args.overlay_mask)
     elif args.image_path.suffix in (".jpg", ".png", ".jpeg"):
         infer(args.image_path, inferencer, args.save_path, args.overlay_mask)
@@ -130,7 +178,12 @@ def stream() -> None:
         )
 
 
-def infer(image_path: Path, inferencer: Inferencer, save_path: Optional[Path] = None, overlay: bool = False) -> None:
+def infer(
+    image_path: Path,
+    inferencer: Inferencer,
+    save_path: Optional[Path] = None,
+    overlay: bool = False,
+) -> None:
     """Perform inference on a single image.
 
     Args:
@@ -143,7 +196,9 @@ def infer(image_path: Path, inferencer: Inferencer, save_path: Optional[Path] = 
     # path is provided, `predict` method will read the image from
     # file for convenience. We set the superimpose flag to True
     # to overlay the predicted anomaly map on top of the input image.
-    output = inferencer.predict(image=image_path, superimpose=True, overlay_mask=overlay)
+    output = inferencer.predict(
+        image=image_path, superimpose=True, overlay_mask=overlay
+    )
 
     # Incase both anomaly map and scores are returned add scores to the image.
     if isinstance(output, tuple):
