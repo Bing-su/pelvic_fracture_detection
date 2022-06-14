@@ -20,7 +20,6 @@ command line, and show the visualization results.
 
 import warnings
 from argparse import ArgumentParser, Namespace
-from importlib import import_module
 from pathlib import Path
 from typing import Optional
 
@@ -135,19 +134,15 @@ def stream() -> None:
     extension = args.weight_path.suffix
     inferencer: Inferencer
     if extension in (".ckpt"):
-        module = import_module("anomalib.deploy.inferencers.torch")
-        TorchInferencer = getattr(
-            module, "TorchInferencer"
-        )  # pylint: disable=invalid-name
+        from anomalib.deploy.inferencers.torch import TorchInferencer
+
         inferencer = TorchInferencer(
             config=config, model_source=args.weight_path, meta_data_path=args.meta_data
         )
 
     elif extension in (".onnx", ".bin", ".xml"):
-        module = import_module("anomalib.deploy.inferencers.openvino")
-        OpenVINOInferencer = getattr(
-            module, "OpenVINOInferencer"
-        )  # pylint: disable=invalid-name
+        from anomalib.deploy.inferencers.openvino import OpenVINOInferencer
+
         inferencer = OpenVINOInferencer(
             config=config, path=args.weight_path, meta_data_path=args.meta_data
         )
