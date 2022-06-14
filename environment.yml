@@ -31,3 +31,6 @@ dependencies:
   - mypy
   - ipywidgets
   - pre-commit
+
+  - pip:
+      - anomalib
