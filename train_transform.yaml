@@ -6,43 +6,43 @@ transform:
   keypoint_params: null
   p: 1.0
   transforms:
-  - __class_fullname__: InvertImg
-    always_apply: false
-    p: 0.5
-  - __class_fullname__: Flip
-    always_apply: false
-    p: 0.5
-  - __class_fullname__: ColorJitter
-    always_apply: false
-    brightness:
-    - 0.8
-    - 1.2
-    contrast:
-    - 0.8
-    - 1.2
-    hue:
-    - -0.2
-    - 0.2
-    p: 0.5
-    saturation:
-    - 0.8
-    - 1.2
-  - __class_fullname__: Resize
-    always_apply: true
-    height: 224
-    interpolation: 1
-    p: 1
-    width: 224
-  - __class_fullname__: Normalize
-    always_apply: false
-    max_pixel_value: 255.0
-    mean: &id001
-    - 0.5
-    - 0.5
-    - 0.5
-    p: 1.0
-    std: *id001
-  - __class_fullname__: ToTensorV2
-    always_apply: true
-    p: 1.0
-    transpose_mask: false
+    - __class_fullname__: InvertImg
+      always_apply: false
+      p: 0.5
+    - __class_fullname__: Flip
+      always_apply: false
+      p: 0.5
+    - __class_fullname__: ColorJitter
+      always_apply: false
+      brightness:
+        - 0.8
+        - 1.2
+      contrast:
+        - 0.8
+        - 1.2
+      hue:
+        - -0.2
+        - 0.2
+      p: 0.5
+      saturation:
+        - 0.8
+        - 1.2
+    - __class_fullname__: Resize
+      always_apply: true
+      height: 384
+      interpolation: 1
+      p: 1
+      width: 384
+    - __class_fullname__: Normalize
+      always_apply: false
+      max_pixel_value: 255.0
+      mean: &id001
+        - 0.5
+        - 0.5
+        - 0.5
+      p: 1.0
+      std: *id001
+    - __class_fullname__: ToTensorV2
+      always_apply: true
+      p: 1.0
+      transpose_mask: false
