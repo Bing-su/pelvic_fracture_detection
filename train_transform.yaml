@@ -12,21 +12,26 @@ transform:
     - __class_fullname__: Flip
       always_apply: false
       p: 0.5
-    - __class_fullname__: ColorJitter
+    - __class_fullname__: Rotate
       always_apply: false
-      brightness:
-        - 0.8
-        - 1.2
-      contrast:
-        - 0.8
-        - 1.2
-      hue:
+      border_mode: 4
+      interpolation: 1
+      limit:
+        - -30
+        - 30
+      mask_value: null
+      p: 0.5
+      value: null
+    - __class_fullname__: RandomBrightnessContrast
+      always_apply: false
+      brightness_by_max: true
+      brightness_limit:
+        - -0.2
+        - 0.2
+      contrast_limit:
         - -0.2
         - 0.2
       p: 0.5
-      saturation:
-        - 0.8
-        - 1.2
     - __class_fullname__: Resize
       always_apply: true
       height: 384

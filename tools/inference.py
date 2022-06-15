@@ -25,6 +25,7 @@ from typing import Optional
 
 import cv2
 import numpy as np
+import torch
 from anomalib.config import get_configurable_parameters
 from anomalib.deploy.inferencers.base import Inferencer
 from tqdm import tqdm
@@ -191,9 +192,10 @@ def infer(
     # path is provided, `predict` method will read the image from
     # file for convenience. We set the superimpose flag to True
     # to overlay the predicted anomaly map on top of the input image.
-    output = inferencer.predict(
-        image=image_path, superimpose=True, overlay_mask=overlay
-    )
+    with torch.no_grad():
+        output = inferencer.predict(
+            image=image_path, superimpose=True, overlay_mask=overlay
+        )
 
     # Incase both anomaly map and scores are returned add scores to the image.
     if isinstance(output, tuple):
