@@ -15,7 +15,7 @@ dataset:
   num_workers: 8
   transform_config:
     train: train_transform.yaml
-    val: null
+    val: val_transform.yaml
   create_validation_set: false
   tiling:
     apply: true

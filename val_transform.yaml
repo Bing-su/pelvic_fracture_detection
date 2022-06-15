@@ -6,32 +6,6 @@ transform:
   keypoint_params: null
   p: 1.0
   transforms:
-    - __class_fullname__: InvertImg
-      always_apply: false
-      p: 0.5
-    - __class_fullname__: Flip
-      always_apply: false
-      p: 0.5
-    - __class_fullname__: Rotate
-      always_apply: false
-      border_mode: 4
-      interpolation: 1
-      limit:
-        - -30
-        - 30
-      mask_value: null
-      p: 0.5
-      value: null
-    - __class_fullname__: RandomBrightnessContrast
-      always_apply: false
-      brightness_by_max: true
-      brightness_limit:
-        - -0.2
-        - 0.2
-      contrast_limit:
-        - -0.2
-        - 0.2
-      p: 0.5
     - __class_fullname__: Resize
       always_apply: true
       height: 256
